@@ -1,6 +1,5 @@
-import 'package:chess/values/colors.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:signalr_core/signalr_core.dart';
 
 class CreateGame extends StatefulWidget {
   @override
@@ -8,24 +7,68 @@ class CreateGame extends StatefulWidget {
 }
 
 class _CreateGameState extends State<CreateGame> {
+  final serverUrl = "http://192.168.0.104:5249/chessHub";
+  HubConnection? hubConnection;
+  bool isConnected = false;
+  TextEditingController _gameNameController = TextEditingController();
   bool _isLoading = false;
 
-  void _createGame() async {
+  @override
+  void initState() {
+    super.initState();
+    _startConnection();
+  }
+
+  Future<void> _startConnection() async {
+    hubConnection = HubConnectionBuilder().withUrl(serverUrl).build();
+
+
+    try {
+      await hubConnection!.start();
+      setState(() {
+        isConnected = true;
+      });
+      print("Connection Started");
+    } catch (e) {
+      print("Error starting connection: $e");
+    }
+  }
+
+  Future<void> _createGame() async {
+    if (!isConnected) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Not connected to the server')),
+      );
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
 
-    // Simulate waiting for another user to connect
-    await Future.delayed(Duration(seconds: 5));
+    try {
+      String gameName = _gameNameController.text;
+      await hubConnection!.invoke("CreateGame", args: <Object>[gameName]);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Game "$gameName" created successfully')),
+      );
+      Navigator.of(context).pop(); // Close the dialog
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error creating game: $e')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
-    setState(() {
-      _isLoading = false;
-    });
-
-    // Show a message or proceed with the game setup
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Other user connected!')),
-    );
+  @override
+  void dispose() {
+    hubConnection?.stop();
+    _gameNameController.dispose();
+    super.dispose();
   }
 
   @override
@@ -38,21 +81,22 @@ class _CreateGameState extends State<CreateGame> {
         child: _isLoading
             ? CircularProgressIndicator()
             : AlertDialog(
-                backgroundColor: bg,
-                title: Text("Enter game name"),
-                content: TextField(
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: 'Enter game name',
-                  ),
-                ),
-                actions: <Widget>[
-                  ElevatedButton(
-                    onPressed: _createGame,
-                    child: Text('Create'),
-                  ),
-                ],
-              ),
+          backgroundColor: Colors.white,
+          title: Text("Enter game name"),
+          content: TextField(
+            controller: _gameNameController,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(),
+              hintText: 'Enter game name',
+            ),
+          ),
+          actions: <Widget>[
+            ElevatedButton(
+              onPressed: _createGame,
+              child: Text('Create'),
+            ),
+          ],
+        ),
       ),
     );
   }

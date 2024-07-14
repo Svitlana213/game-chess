@@ -1,5 +1,5 @@
-import 'package:chess/values/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:signalr_core/signalr_core.dart';
 
 class ConnectGame extends StatefulWidget {
   @override
@@ -7,13 +7,46 @@ class ConnectGame extends StatefulWidget {
 }
 
 class _ConnectGameState extends State<ConnectGame> {
-  List<Map<String, String>> games = [];
+  // The location of the SignalR Server.
+  final serverUrl = "http://192.168.0.104:5249/chessHub";
+  HubConnection? hubConnection;
+  bool isConnected = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _startConnection();
+  }
+
+  Future<void> _startConnection() async {
+    // Creates the connection by using the HubConnectionBuilder.
+    hubConnection = HubConnectionBuilder().withUrl(serverUrl).build();
+
+    try {
+      await hubConnection!.start();
+      setState(() {
+        isConnected = true;
+      });
+      print("Connection Started");
+    } catch (e) {
+      print("Error starting connection: $e");
+    }
+  }
 
   void _connectToGame(String gameId) {
-    // Implement your logic to connect to the game using the gameId
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Connecting to game $gameId')),
-    );
+    if (isConnected) {
+      // Implement your logic to connect to the game using SignalR.
+      hubConnection!.invoke("ConnectGame", args: <Object>[gameId]).catchError((error) {
+        print("Error invoking method: $error");
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Connecting to game $gameId')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Not connected to the server')),
+      );
+    }
   }
 
   @override
@@ -22,24 +55,34 @@ class _ConnectGameState extends State<ConnectGame> {
       appBar: AppBar(
         title: Text('Choose the game to connect'),
       ),
-      body: Container(
-        color: bg,
+      body: isConnected
+          ? Container(
+        color: Colors.grey[900],
         child: ListView.builder(
-          itemCount: games.length,
+          itemCount: 4, // Example game count
           itemBuilder: (context, index) {
             return ListTile(
               title: Text(
-                games[index]['name']!,
+                'Game ${index + 1}',
                 style: TextStyle(color: Colors.white),
               ),
               trailing: ElevatedButton(
-                onPressed: () => _connectToGame(games[index]['id']!),
+                onPressed: () => _connectToGame('Game ${index + 1}'),
                 child: Text('Connect'),
               ),
             );
           },
         ),
+      )
+          : Center(
+        child: CircularProgressIndicator(),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    hubConnection?.stop();
+    super.dispose();
   }
 }
