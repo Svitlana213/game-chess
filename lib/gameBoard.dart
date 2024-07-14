@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:chess/components/piece.dart';
 import 'package:chess/components/square.dart';
 import 'package:chess/values/colors.dart';
