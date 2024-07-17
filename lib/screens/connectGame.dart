@@ -11,6 +11,7 @@ class _ConnectGameState extends State<ConnectGame> {
   final serverUrl = "http://192.168.0.104:5249/chessHub";
   HubConnection? hubConnection;
   bool isConnected = false;
+  List<dynamic> games = [];
 
   @override
   void initState() {
@@ -28,6 +29,11 @@ class _ConnectGameState extends State<ConnectGame> {
         isConnected = true;
       });
       print("Connection Started");
+
+      var gameList = await _getGameList();
+      setState(() {
+        games = gameList;
+      });
     } catch (e) {
       print("Error starting connection: $e");
     }
@@ -49,6 +55,20 @@ class _ConnectGameState extends State<ConnectGame> {
     }
   }
 
+  Future<List<dynamic>> _getGameList() async {
+    if (isConnected) {
+      try {
+        var games = await hubConnection!.invoke("GetGameList");
+        return games?.map((game) => game.toString()).toList() ?? [];
+      } catch (e) {
+        print("Error fetching game list: $e");
+        return [];
+      }
+    } else {
+      return [];
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,15 +79,15 @@ class _ConnectGameState extends State<ConnectGame> {
           ? Container(
         color: Colors.grey[900],
         child: ListView.builder(
-          itemCount: 4, // Example game count
+          itemCount: games.length,
           itemBuilder: (context, index) {
             return ListTile(
               title: Text(
-                'Game ${index + 1}',
+                games[index],
                 style: TextStyle(color: Colors.white),
               ),
               trailing: ElevatedButton(
-                onPressed: () => _connectToGame('Game ${index + 1}'),
+                onPressed: () => _connectToGame(games[index]),
                 child: Text('Connect'),
               ),
             );
