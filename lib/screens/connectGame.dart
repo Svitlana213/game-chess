@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:signalr_core/signalr_core.dart';
+import '../gameBoard.dart';
 
 class ConnectGame extends StatefulWidget {
   @override
@@ -42,12 +43,19 @@ class _ConnectGameState extends State<ConnectGame> {
   void _connectToGame(String gameId) {
     if (isConnected) {
       // Implement your logic to connect to the game using SignalR.
-      hubConnection!.invoke("ConnectGame", args: <Object>[gameId]).catchError((error) {
+      hubConnection!.invoke("ConnectGame", args: <Object>[gameId]).then((_) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => GameBoard(hubConnection: hubConnection!,
+            gameId: gameId,
+            isWhitePlayer: false,)),
+        );
+      }).catchError((error) {
         print("Error invoking method: $error");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error connecting to game')),
+        );
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Connecting to game $gameId')),
-      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Not connected to the server')),

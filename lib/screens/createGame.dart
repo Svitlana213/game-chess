@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:signalr_core/signalr_core.dart';
 
+import '../gameBoard.dart';
+
+
 class CreateGame extends StatefulWidget {
   @override
   _CreateGameState createState() => _CreateGameState();
@@ -21,7 +24,6 @@ class _CreateGameState extends State<CreateGame> {
 
   Future<void> _startConnection() async {
     hubConnection = HubConnectionBuilder().withUrl(serverUrl).build();
-
 
     try {
       await hubConnection!.start();
@@ -52,7 +54,12 @@ class _CreateGameState extends State<CreateGame> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Game "$gameName" created successfully')),
       );
-      Navigator.of(context).pop(); // Close the dialog
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => GameBoard(hubConnection: hubConnection!,
+          gameId: gameName,
+          isWhitePlayer: true,)),
+      );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error creating game: $e')),

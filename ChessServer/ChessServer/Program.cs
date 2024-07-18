@@ -57,8 +57,17 @@ public class ChessHub(Game game, ILogger<ChessHub> logger) : Hub
         return rooms;
     }
 
-    public async Task Move()
-    {
+    public async Task SendMove(string gameName, int startRow, int startCol, int endRow, int endCol, string conectionId)
+    { 
+        //await Clients.Group(gameName).SendAsync("ReceiveMove",startRow, startCol, endRow, endCol);
+        await Clients.All.SendAsync("ReceiveMove", startRow, startCol, endRow, endCol, conectionId);
         
+        _logger.LogInformation($"SendMove. " +
+                               $"gameName {gameName}, " +
+                               $"startRow {startRow}, " +
+                               $"startCol {startCol}, " +
+                               $"endRow {endRow}, " +
+                               $"endCol {endCol} " +
+                               $"conectionId {conectionId}");
     }
 }
