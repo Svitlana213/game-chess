@@ -1,3 +1,4 @@
+import 'package:chess/values/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:signalr_core/signalr_core.dart';
 
@@ -84,25 +85,27 @@ class _CreateGameState extends State<CreateGame> {
       appBar: AppBar(
         title: Text('Create Game'),
       ),
-      body: Center(
-        child: _isLoading
-            ? CircularProgressIndicator()
-            : AlertDialog(
-          backgroundColor: Colors.white,
-          title: Text("Enter game name"),
-          content: TextField(
-            controller: _gameNameController,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              hintText: 'Enter game name',
+      body: Container(
+        color: bg,
+        child: Center(
+          child: _isLoading
+              ? CircularProgressIndicator()
+              : AlertDialog(
+            title: Text("Enter game name"),
+            content: TextField(
+              controller: _gameNameController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: 'Enter game name',
+              ),
             ),
+            actions: <Widget>[
+              ElevatedButton(
+                onPressed: _createGame,
+                child: Text('Create'),
+              ),
+            ],
           ),
-          actions: <Widget>[
-            ElevatedButton(
-              onPressed: _createGame,
-              child: Text('Create'),
-            ),
-          ],
         ),
       ),
     );

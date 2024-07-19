@@ -1,3 +1,4 @@
+import 'package:chess/values/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:signalr_core/signalr_core.dart';
 import '../gameBoard.dart';
@@ -85,14 +86,14 @@ class _ConnectGameState extends State<ConnectGame> {
       ),
       body: isConnected
           ? Container(
-        color: Colors.grey[900],
+        color: bg,
         child: ListView.builder(
           itemCount: games.length,
           itemBuilder: (context, index) {
             return ListTile(
               title: Text(
                 games[index],
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: White),
               ),
               trailing: ElevatedButton(
                 onPressed: () => _connectToGame(games[index]),

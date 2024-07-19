@@ -21,7 +21,7 @@ class StartScreen extends StatelessWidget {
                   Container(
                     child: Text(
                       'Welcome to chess game',
-                      style: TextStyle(color: Colors.white, fontSize: 24),
+                      style: TextStyle(color: White, fontSize: 24),
                     ),
                   ),
                   SizedBox(height: 20),
@@ -37,7 +37,7 @@ class StartScreen extends StatelessWidget {
                         },
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.yellowAccent,
+                            color: Yellow,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           height: 50,
@@ -46,7 +46,7 @@ class StartScreen extends StatelessWidget {
                           child: Text(
                             'Create the game',
                             style: TextStyle(
-                              color: Colors.black,
+                              color:Black,
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
                             ),
@@ -65,7 +65,7 @@ class StartScreen extends StatelessWidget {
                         },
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.yellowAccent,
+                            color: Yellow,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           height: 50,
@@ -74,7 +74,7 @@ class StartScreen extends StatelessWidget {
                           child: Text(
                             'Connect to the game',
                             style: TextStyle(
-                              color: Colors.black,
+                              color: Black,
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
                             ),
